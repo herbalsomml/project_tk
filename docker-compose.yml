@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: python_bot
+    restart: always  # Автоматический перезапуск контейнера в случае сбоя
+    volumes:
+      - .:/app  # Монтируем локальную папку проекта в контейнер
+    environment:
+      - PYTHONUNBUFFERED=1  # Обеспечивает правильный вывод логов
+    command: python bot.py
