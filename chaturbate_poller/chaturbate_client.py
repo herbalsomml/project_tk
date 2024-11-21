@@ -38,6 +38,7 @@ class ChaturbateClient:
         *,
         testbed: bool = False,
         verbose: bool = False,
+        proxies: dict[str, str] | None = None,
     ) -> None:
         """Initialize the client."""
         if verbose:
@@ -61,6 +62,7 @@ class ChaturbateClient:
         self.token = token
         self._client: httpx.AsyncClient | None = None
         self.influxdb_handler: InfluxDBHandler = InfluxDBHandler()
+        self.proxies = proxies
 
     @property
     def client(self) -> httpx.AsyncClient:
@@ -70,7 +72,10 @@ class ChaturbateClient:
             httpx.AsyncClient: The HTTP client.
         """
         if self._client is None:
-            self._client = httpx.AsyncClient(timeout=300)
+            self._client = httpx.AsyncClient(
+                timeout=300,
+                proxies=self.proxies,
+            )
         return self._client
 
     async def __aenter__(self) -> "ChaturbateClient":
