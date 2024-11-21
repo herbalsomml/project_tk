@@ -68,12 +68,6 @@ keyboard = InlineKeyboardBuilder().add(
     InlineKeyboardButton(text="🔥 Совершить обмен", url=f"https://t.me/{CONTACT_TG_USERNAME}")
 )
 
-
-async def send_daily_message():
-    print("Дайлик")
-    message = "Добрый вечер! Это автоматическое напоминание."
-    await send_message_to_admins(bot, message, ADMINS)
-
 @dp.message(CommandStart())
 async def handle_start_command(message: Message) -> None:
     nickname = message.from_user.username
@@ -158,7 +152,7 @@ async def send_daily_message():
     while True:
         now = datetime.now()
         print(now)
-        next_send_time = now.replace(hour=22, minute=00, second=0, microsecond=0)
+        next_send_time = now.replace(hour=20, minute=00, second=0, microsecond=0)
         if now > next_send_time:
             next_send_time += timedelta(days=1)
         
