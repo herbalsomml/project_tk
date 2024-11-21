@@ -108,7 +108,8 @@ async def handle_message(message: Message) -> None:
     try:
         tokens = int(message.text.strip())
         text = get_tokens_rate_text(tokens)
-        await send_message_to_admins(bot, f"🔔 <b>Пользователь {'@' + message.from_user.username if message.from_user.username else message.from_user.first_name} запросил курс!</b>\b\b{text}", ADMINS)
+        if text != "😔 Минимальная сумма к обмену - 500 токенов":
+            await send_message_to_admins(bot, f"🔔 <b>Пользователь {'@' + message.from_user.username if message.from_user.username else message.from_user.first_name} запросил курс!</b>\n\n{text}", ADMINS)
         await message.answer_photo(IMAGE_LINK, caption=text, reply_markup=keyboard.as_markup())
     except ValueError:
         await message.answer("<b>Сумма токенов должна быть числом!</b>")
