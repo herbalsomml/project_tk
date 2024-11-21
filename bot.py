@@ -6,18 +6,26 @@ from aiogram import F
 import requests
 from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
+from apscheduler.triggers.cron import CronTrigger
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
+import pytz
 from aiogram.types import InlineKeyboardButton, Message, InlineQuery, InlineQueryResultPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from datetime import datetime, timedelta
+
 from uuid import uuid4
 from functions.bot import send_message_to_admins
 from aiogram.types import FSInputFile
 from chaturbate import ChaturbateAccountHandler
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from chaturbate_poller.config_manager import ConfigManager
 from functions.db import create_database_and_table, add_user, get_users, get_users_amount
 from functions.rate import get_bank_rate, calculate_rates, get_rate_for_amount, get_tokens_rate_text, get_rates_text
+
+from multiprocessing import *
+import schedule
 
 
 # Configurations
@@ -60,6 +68,11 @@ keyboard = InlineKeyboardBuilder().add(
     InlineKeyboardButton(text="🔥 Совершить обмен", url=f"https://t.me/{CONTACT_TG_USERNAME}")
 )
 
+
+async def send_daily_message():
+    print("Дайлик")
+    message = "Добрый вечер! Это автоматическое напоминание."
+    await send_message_to_admins(bot, message, ADMINS)
 
 @dp.message(CommandStart())
 async def handle_start_command(message: Message) -> None:
@@ -108,7 +121,7 @@ async def handle_message(message: Message) -> None:
     try:
         tokens = int(message.text.strip())
         text = get_tokens_rate_text(tokens)
-        if text != "😔 Минимальная сумма к обмену - 500 токенов":
+        if "Минимальная сумма к обмену - 500 токенов" not in text:
             await send_message_to_admins(bot, f"🔔 <b>Пользователь {'@' + message.from_user.username if message.from_user.username else message.from_user.first_name} запросил курс!</b>\n\n{text}", ADMINS)
         await message.answer_photo(IMAGE_LINK, caption=text, reply_markup=keyboard.as_markup())
     except ValueError:
@@ -141,12 +154,43 @@ async def inline_query_handler(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results, cache_time=0)
 
 
+async def send_daily_message():
+    while True:
+        now = datetime.now()
+        print(now)
+        next_send_time = now.replace(hour=20, minute=43, second=0, microsecond=0)
+        if now > next_send_time:
+            next_send_time += timedelta(days=1)
+        
+        sleep_time = (next_send_time - now).total_seconds()
+        
+        await asyncio.sleep(sleep_time)
+
+        await send_dayly_message_to_admins()
+
+async def send_dayly_message_to_admins():
+    for account in accounts:
+        if len(account.transactions) < 1:
+            continue
+        elif len(account.transactions) > 1:
+            text = "Hello! I received transactions from these users today. I ask you to check if these tokens are good.\n\n"
+        elif len(account.transactions) == 1:
+            text = "hello! today I received tokens from this user. I ask you to check these tokens\n\n"
+
+        for transaction in account.transactions:
+            text += transaction
+            account.transactions.clear()
+        message = f"<b>Сообщение для саппорта, аккаунт {account.username}</b>\n\n<code>{text}</code>"
+        await send_message_to_admins(bot, message, ADMINS)
+
+
 async def bot_poller() -> None:
     await dp.start_polling(bot)
 
 async def main():
     await asyncio.gather(
         bot_poller(),
+        send_daily_message(),
         account1.cb_poller(),
         account2.cb_poller(),
     )

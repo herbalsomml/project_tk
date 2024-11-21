@@ -11,6 +11,7 @@ class ChaturbateAccountHandler:
         self.bot = bot
         self.proxies = proxies
         self.ADMINS = ADMINS
+        self.transactions = []
 
     async def fetch_token_balance(self):
         """Функция для получения token_balance с использованием прокси."""
@@ -47,6 +48,8 @@ class ChaturbateAccountHandler:
                         text += f"<b>💸 <a href='https://chaturbate.com/{user.username}'>{user.username}</a> отправил <code>{tokens}</code> тк.</b>"
                         text += f"\n\n<code>{tokens} {exchange_rate}</code>"
                         text += f"\n\n<code>{rubles}</code>"
+
+                        self.transactions.append(f"{self.username} - {tokens} tokens")
 
                         await send_message_to_admins(self.bot, text, self.ADMINS)
                 
