@@ -158,7 +158,7 @@ async def send_daily_message():
     while True:
         now = datetime.now()
         print(now)
-        next_send_time = now.replace(hour=20, minute=43, second=0, microsecond=0)
+        next_send_time = now.replace(hour=22, minute=00, second=0, microsecond=0)
         if now > next_send_time:
             next_send_time += timedelta(days=1)
         
