@@ -46,8 +46,8 @@ CB_USERNAME_2 = getenv("CB_USERNAME_2")
 CB_EVENTS_TOKEN_2 = getenv("CB_EVENTS_TOKEN_2")
 CB_STATS_TOKEN_2 = getenv("CB_STATS_TOKEN_2")
 
-account1 = ChaturbateAccountHandler(CB_USERNAME_1, CB_EVENTS_TOKEN_1, CB_STATS_TOKEN_1, bot)
-account2 = ChaturbateAccountHandler(CB_USERNAME_2, CB_EVENTS_TOKEN_2, CB_STATS_TOKEN_2, bot, proxies=account2_proxies)
+account1 = ChaturbateAccountHandler(CB_USERNAME_1, CB_EVENTS_TOKEN_1, CB_STATS_TOKEN_1, bot, ADMINS)
+account2 = ChaturbateAccountHandler(CB_USERNAME_2, CB_EVENTS_TOKEN_2, CB_STATS_TOKEN_2, bot, ADMINS, proxies=account2_proxies)
 
 accounts = [
     account1,
@@ -64,7 +64,7 @@ keyboard = InlineKeyboardBuilder().add(
 @dp.message(CommandStart())
 async def handle_start_command(message: Message) -> None:
     nickname = message.from_user.username
-    await add_user(DB_NAME, ADMINS, bot, message.from_user.id, message.from_user.full_name, nickname)
+    await add_user(DB_NAME, ADMINS, bot, message.from_user.id, message.from_user.full_name, nickname, ADMINS)
     await message.answer(f"Привет, <b>{message.from_user.full_name}</b>!\nОтправь мне сумму токенов или просто напиши <code>КУРС</code> :з")
 
 
@@ -77,7 +77,7 @@ async def handle_message(message: Message) -> None:
         return await message.answer("<b>Пожалуйста, отправьте количество токенов или команду <code>КУРС</code>.</b>")
 
     if message.text.lower() == "курс":
-        await send_message_to_admins(bot, f"🔔 <b>Пользователь {'@' + message.from_user.username if message.from_user.username else message.from_user.first_name} запросил курс!</b>")
+        await send_message_to_admins(bot, f"🔔 <b>Пользователь {'@' + message.from_user.username if message.from_user.username else message.from_user.first_name} запросил курс!</b>", ADMINS)
         text = get_rates_text()
         await message.answer_photo(IMAGE_LINK, caption=text, reply_markup=keyboard.as_markup())
         return

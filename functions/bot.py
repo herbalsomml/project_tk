@@ -1,13 +1,7 @@
-import asyncio
-from os import getenv
-
-
-ADMINS = getenv("ADMINS", "").split(',')
-
-
-async def send_message_to_admins(bot, message):
+async def send_message_to_admins(bot, message, ADMINS):
     for admin in ADMINS:
         try:
+            print(admin)
             await bot.send_message(admin, message, disable_web_page_preview=True)
         except Exception as e:
-            pass
+            print(f"Ошибка при отправке сообщения: {e}")

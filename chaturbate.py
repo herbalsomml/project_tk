@@ -4,12 +4,13 @@ from functions.bot import send_message_to_admins
 import httpx
 
 class ChaturbateAccountHandler:
-    def __init__(self, username, events_token, stats_token, bot, proxies=None):
+    def __init__(self, username, events_token, stats_token, bot, ADMINS, proxies=None):
         self.username = username
         self.events_token = events_token
         self.stats_token = stats_token
         self.bot = bot
         self.proxies = proxies
+        self.ADMINS = ADMINS
 
     async def fetch_token_balance(self):
         """Функция для получения token_balance с использованием прокси."""
@@ -47,6 +48,6 @@ class ChaturbateAccountHandler:
                         text += f"\n\n<code>{tokens} {exchange_rate}</code>"
                         text += f"\n\n<code>{rubles}</code>"
 
-                        await send_message_to_admins(self.bot, text)
+                        await send_message_to_admins(self.bot, text, self.ADMINS)
                 
                 url = str(response.next_url)
