@@ -1,39 +1,38 @@
 import requests
 import xml.etree.ElementTree as ET
-from constants import CBR_URL
+from constants import CBR_URL, RATE_API_URL
+from pprint import pprint
 
-
-def get_bank_rate() -> float:
+def get_rate():
     try:
-        response = requests.get(CBR_URL)
+        response = requests.get(RATE_API_URL)
         response.raise_for_status()
-        root = ET.fromstring(response.content)
-        value = root.find(".//Valute[@ID='R01235']/Value").text
-        return float(value.replace(',', '.'))
+        data = response.json()
+        return data.get("rate_25"), data.get("rate_50"), data.get("rate_100"), data.get("rate_250"), data.get("rate_500")
     except Exception as e:
-        return 0.0
+        return 0, 0, 0, 0, 0
 
 
-def calculate_rates(base_rate: float) -> dict:
+def calculate_rates() -> dict:
+    r25, r50, r100, r250, r500 = get_rate()
     return {
-        25: round(base_rate * 0.92, 2),
-        50: round(base_rate * 0.93, 2),
-        100: round(base_rate * 0.945, 2),
-        250: round(base_rate * 0.96, 2),
-        500: round(base_rate * 0.97, 2),
+        25: r25,
+        50: r50,
+        100: r100,
+        250: r250,
+        500: r500,
     }
 
 
 def get_rate_for_amount(rates: dict, amount: float) -> float:
-    for threshold in sorted(rates.keys()):
-        if amount < threshold:
+    for threshold in sorted(rates.keys(), reverse=True):
+        if amount >= threshold:
             return rates[threshold]
     return rates[max(rates.keys())]
 
 
 def get_tokens_rate_text(tokens):
-    rate = get_bank_rate()
-    rates = calculate_rates(rate)
+    rates = calculate_rates()
     dollars = tokens * 0.05
     if dollars < 25:
         return "<b>😔 Минимальная сумма к обмену - 500 токенов</b>"
@@ -48,8 +47,7 @@ def get_tokens_rate_text(tokens):
 
 
 def get_rates_text():
-    rate = get_bank_rate()
-    rates = calculate_rates(rate)
+    rates = calculate_rates()
     text = (
         f"<b>Минимальная сумма обмена - 25$</b> (500 токенов)\n\n"
         f"<b>Курс за $1:</b>\n"

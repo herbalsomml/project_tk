@@ -3,13 +3,10 @@ import logging
 import sys
 from os import getenv
 from aiogram import F
-import requests
 from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
-from apscheduler.triggers.cron import CronTrigger
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-import pytz
 from aiogram.types import InlineKeyboardButton, Message, InlineQuery, InlineQueryResultPhoto
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from datetime import datetime, timedelta
@@ -18,11 +15,10 @@ from uuid import uuid4
 from functions.bot import send_message_to_admins
 from aiogram.types import FSInputFile
 from chaturbate import ChaturbateAccountHandler
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from chaturbate_poller.config_manager import ConfigManager
 from functions.db import create_database_and_table, add_user, get_users, get_users_amount
-from functions.rate import get_bank_rate, calculate_rates, get_rate_for_amount, get_tokens_rate_text, get_rates_text
+from functions.rate import get_tokens_rate_text, get_rates_text
 
 from multiprocessing import *
 import schedule

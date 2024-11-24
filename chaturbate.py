@@ -1,5 +1,5 @@
 from chaturbate_poller.chaturbate_client import ChaturbateClient
-from functions.rate import get_bank_rate, calculate_rates, get_rate_for_amount, get_tokens_rate_text, get_rates_text
+from functions.rate import calculate_rates, get_rate_for_amount
 from functions.bot import send_message_to_admins
 import httpx
 
@@ -37,8 +37,7 @@ class ChaturbateAccountHandler:
                         tokens = event.object.tip.tokens
                         user = event.object.user
                         dollars = tokens * 0.05
-                        rate = get_bank_rate()
-                        rates = calculate_rates(rate)
+                        rates = calculate_rates()
                         exchange_rate = get_rate_for_amount(rates, dollars)
                         rubles = int(dollars * exchange_rate)
 
@@ -49,7 +48,7 @@ class ChaturbateAccountHandler:
                         text += f"\n\n<code>{tokens} {exchange_rate}</code>"
                         text += f"\n\n<code>{rubles}</code>"
 
-                        self.transactions.append(f"{self.username} - {tokens} tokens")
+                        self.transactions.append(f"{user.username} - {tokens} tokens")
 
                         await send_message_to_admins(self.bot, text, self.ADMINS)
                 
